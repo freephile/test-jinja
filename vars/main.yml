@@ -1,0 +1,3 @@
+---
+# vars file for test-jinja
+output_dir: "{{role_path}}/files"
