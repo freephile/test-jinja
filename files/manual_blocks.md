@@ -2,15 +2,16 @@
 
 The special 'comment' directive is only valid as the first line in the template file
 The DEFAULT for Jinja in Ansible is
+
 #jinja2: trim_blocks: "true", lstrip_blocks: "false"
 
 You can test the output of this template directly with
-ansible all -i "localhost," -c local -m template -a "src=./test-jinja/templates/manual_blocks.j2 dest=./test-jinja/files/manual_blocks.md"
+`ansible all -i "localhost," -c local -m template -a "src=./templates/manual_blocks.j2 dest=./files/manual_blocks.md"`
 
 ## Raw
 This is the jinja block we're using throughout this template, slightly
 modified in each variant.
-
+```
 {% set foo="default" %}
 {% for i in [1, 2, 3] %}
     {% if loop.first %}
@@ -19,18 +20,21 @@ modified in each variant.
       {{i}} {{foo}}
     {% endif %}
 {% endfor %}
+```
 
 
 ## Default
 Here we just have the 'control' with no manual adjustments
+
+```
       1 default
       2 default
       3 default
-
+```
 
 ## Using plus (+)
 Disable `lstrip_blocks` with a + at the beginning
-
+```
 {% set bar="using plus" %}
 {% for i in [1, 2, 3] %}
     {%+ if loop.first %}
@@ -39,15 +43,17 @@ Disable `lstrip_blocks` with a + at the beginning
         {{i}} {{bar}}
     {% endif %}
 {% endfor %}
+```
+```
             1 using plus
             2 using plus
             3 using plus
-
+```
 
 
 Disable `trim_blocks` with a + at the end
-Unfortunately, this resulted in a parse error in my version of Ansible/Jinja
-
+Unfortunately, these tests resulted in a parse error in my version of Ansible/Jinja
+```
 {% set bar="using plus" %}
 {% for i in [1, 2, 3] %}
     {%+ if loop.first +%}
@@ -57,15 +63,36 @@ Unfortunately, this resulted in a parse error in my version of Ansible/Jinja
     {% endif %}
 {% endfor %}
 
+Adding plus before the else statement
+{% set foo="add plus before else" %}
+{% for i in [1, 2, 3] %}
+    {% if loop.first %}
+{{foo}}
+    {%+ else%}
+{{foo}}
+    {% endif %}
+{% endfor %}
+
+Adding plus before and after the else statement
+{% set foo="add plus before and after else" %}
+{% for i in [1, 2, 3] %}
+    {% if loop.first %}
+{{foo}}
+    {%+ else +%}
+{{foo}}
+    {% endif %}
+{% endfor %}
+```
+
 
 
 ## Using minus (-)
 You can also strip whitespace in templates by hand. 
-If you add a minus sign (-) to the start or end of a block (e.g. a For tag), a comment, or a variable expression, 
-the whitespaces before or after that block will be removed:
+If you add a minus sign (-) to the start or end of a block (e.g. a For tag), 
+a comment, or a variable expression, the whitespaces before or after that block will be removed:
 
 Using minus before the else
-
+```
 {% set foo="use minus" %}
 {% for i in [1, 2, 3] %}
     {% if loop.first %}
@@ -74,11 +101,14 @@ Using minus before the else
         {{i}} {{foo}}
     {% endif %}
 {% endfor %}
+```
+```
         1 use minus        2 use minus
         3 use minus
+```
 
 Use minus after the else
-
+```
 {% set foo="use minus" %}
 {% for i in [1, 2, 3] %}
     {% if loop.first %}
@@ -87,13 +117,15 @@ Use minus after the else
         {{i}} {{foo}}
     {% endif %}
 {% endfor %}
+```
+```
         1 use minus
 2 use minus
 3 use minus
-
+```
 
 Use minus after the 'if', and 'else'
-
+```
 {% set foo="use minus" %}
 {% for i in [1, 2, 3] %}
     {% if loop.first -%}
@@ -102,13 +134,15 @@ Use minus after the 'if', and 'else'
         {{i}} {{foo}}
     {% endif %}
 {% endfor %}
+```
+```
 1 use minus
 2 use minus
 3 use minus
-
+```
 
 Use minus before and after only the 'else'
-
+```
 {% set foo="use minus" %}
 {% for i in [1, 2, 3] %}
     {% if loop.first %}
@@ -117,11 +151,14 @@ Use minus before and after only the 'else'
         {{i}} {{foo}}
     {% endif %}
 {% endfor %}
+```
+```
         1 use minus2 use minus
 3 use minus
+```
 
 Use minus before and after the 'if', 'else', 'endif'
-
+```
 {% set foo="use minus" %}
 {% for i in [1, 2, 3] %}
     {%- if loop.first -%}
@@ -130,5 +167,7 @@ Use minus before and after the 'if', 'else', 'endif'
         {{loop.index}} {{foo}}
     {%- endif -%}
 {% endfor %}
+```
+```
 1 use minus2 use minus3 use minus
-
+```
